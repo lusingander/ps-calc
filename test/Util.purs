@@ -4,7 +4,7 @@ import Prelude
 
 import Effect (Effect)
 import Test.Assert (assertEqual, assertFalse, assertTrue)
-import Util (isAlphaNum, isDigit, isLower, isUpper, next, toLower, toUpper)
+import Util (isAlphaNum, isDigit, isLower, isSpace, isUpper, next, toLower, toUpper)
 
 testUtil :: Effect Unit
 testUtil = do
@@ -15,6 +15,7 @@ testUtil = do
   testIsLower
   testIsUpper
   testIsAlphaNum
+  testIsSpace
 
 testToUpper :: Effect Unit
 testToUpper = do
@@ -54,3 +55,11 @@ testIsAlphaNum = do
   assertTrue $ isAlphaNum 'A'
   assertTrue $ isAlphaNum '0'
   assertFalse $ isAlphaNum '!'
+
+testIsSpace :: Effect Unit
+testIsSpace = do
+  assertTrue $ isSpace ' '
+  assertTrue $ isSpace '　'
+  assertTrue $ isSpace '\t'
+  assertTrue $ isSpace '\n'
+  assertFalse $ isSpace 's'

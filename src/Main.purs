@@ -6,11 +6,16 @@ module Main
   , char
   , digit
   , fromChars
+  , ident
+  , int
   , item
   , lower
   , main
+  , nat
   , parse
   , sat
+  , space
+  , string
   , toChars
   , upper
   )
@@ -18,12 +23,15 @@ module Main
 
 import Prelude
 
-import Control.Alternative (class Alt, class Alternative, class Plus, empty)
-import Data.List (List(..), fromFoldable, singleton, toUnfoldable, (:))
+import Control.Alternative (class Alt, class Alternative, class Plus, empty, (<|>))
+import Control.Lazy (class Lazy)
+import Data.Int (fromString) as Int
+import Data.List (List(..), fromFoldable, many, singleton, some, toUnfoldable, (:))
+import Data.Maybe (Maybe(..))
 import Data.String.CodeUnits (fromCharArray, toCharArray)
 import Effect (Effect)
 import Effect.Console (log)
-import Util (isAlphaNum, isDigit, isLower, isUpper)
+import Util (isAlphaNum, isDigit, isLower, isSpace, isUpper)
 
 type Result a = { ret :: a, str :: String }
 
@@ -67,6 +75,10 @@ instance plusParser :: Plus Parser where
 
 instance alternativeParser :: Alternative Parser
 
+instance lazyParser :: Lazy (Parser a) where
+  defer :: forall a. (Unit -> Parser a) -> Parser a
+  defer f = P (\inp -> parse (f unit) inp)
+
 parse :: forall a. Parser a -> String -> Results a
 parse (P p) inp = p inp
 
@@ -100,6 +112,38 @@ alphanum = sat isAlphaNum
 
 char :: Char -> Parser Char
 char c = sat (_ == c)
+
+string :: String -> Parser String
+string s = case toChars s of
+  Nil -> pure ""
+  c:cs -> do
+    _ <- char c
+    _ <- string $ fromChars cs
+    pure s
+
+ident :: Parser String
+ident = do
+  x <- lower
+  xs <- many alphanum
+  pure $ fromChars $ x:xs
+
+nat :: Parser Int
+nat = do
+  xs <- some digit
+  let maybeN = Int.fromString $ fromChars xs
+  case maybeN of
+    Just n -> pure n
+    Nothing -> empty
+
+space :: Parser Unit
+space = do
+  _ <- many $ sat isSpace
+  pure unit
+
+int :: Parser Int
+int = neg <|> nat
+  where
+    neg = map negate $ char '-' *> nat
 
 main :: Effect Unit
 main = do

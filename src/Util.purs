@@ -2,6 +2,7 @@ module Util
   ( isAlphaNum
   , isDigit
   , isLower
+  , isSpace
   , isUpper
   , next
   , toLower
@@ -12,7 +13,7 @@ module Util
 import Prelude
 
 import Data.Char (fromCharCode, toCharCode)
-import Data.CodePoint.Unicode (isAlphaNum, isDecDigit, isLower, isUpper) as U
+import Data.CodePoint.Unicode (isAlphaNum, isDecDigit, isLower, isSpace, isUpper) as U
 import Data.Maybe (fromJust)
 import Data.String (codePointFromChar)
 import Partial.Unsafe (unsafePartial)
@@ -52,3 +53,6 @@ isUpper = U.isUpper <<< codePointFromChar
 
 isAlphaNum :: Char -> Boolean
 isAlphaNum = U.isAlphaNum <<< codePointFromChar
+
+isSpace :: Char -> Boolean
+isSpace = U.isSpace <<< codePointFromChar
