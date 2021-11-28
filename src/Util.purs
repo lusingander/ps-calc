@@ -1,5 +1,9 @@
 module Util
-  ( next
+  ( isAlphaNum
+  , isDigit
+  , isLower
+  , isUpper
+  , next
   , toLower
   , toUpper
   )
@@ -8,7 +12,9 @@ module Util
 import Prelude
 
 import Data.Char (fromCharCode, toCharCode)
+import Data.CodePoint.Unicode (isAlphaNum, isDecDigit, isLower, isUpper) as U
 import Data.Maybe (fromJust)
+import Data.String (codePointFromChar)
 import Partial.Unsafe (unsafePartial)
 
 -- unsafe
@@ -34,3 +40,15 @@ toLowerInt n = n + 0x20
 
 nextInt :: Int -> Int
 nextInt n = n + 1
+
+isDigit :: Char -> Boolean
+isDigit = U.isDecDigit <<< codePointFromChar
+
+isLower :: Char -> Boolean
+isLower = U.isLower <<< codePointFromChar
+
+isUpper :: Char -> Boolean
+isUpper = U.isUpper <<< codePointFromChar
+
+isAlphaNum :: Char -> Boolean
+isAlphaNum = U.isAlphaNum <<< codePointFromChar

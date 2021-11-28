@@ -22,6 +22,7 @@ to generate this file without the comments in this block.
   , "prelude"
   , "psci-support"
   , "strings"
+  , "unicode"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

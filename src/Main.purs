@@ -2,21 +2,28 @@ module Main
   ( Parser
   , Result
   , Results
+  , alphanum
+  , char
+  , digit
   , fromChars
   , item
+  , lower
   , main
   , parse
+  , sat
   , toChars
+  , upper
   )
   where
 
 import Prelude
 
-import Control.Alternative (class Alt, class Alternative, class Plus)
+import Control.Alternative (class Alt, class Alternative, class Plus, empty)
 import Data.List (List(..), fromFoldable, singleton, toUnfoldable, (:))
 import Data.String.CodeUnits (fromCharArray, toCharArray)
 import Effect (Effect)
 import Effect.Console (log)
+import Util (isAlphaNum, isDigit, isLower, isUpper)
 
 type Result a = { ret :: a, str :: String }
 
@@ -73,6 +80,26 @@ item :: Parser Char
 item = P (\inp -> case toChars inp of
   Nil -> Nil
   x : xs -> singleton { ret: x , str: fromChars xs })
+
+sat :: (Char -> Boolean) -> Parser Char
+sat p = do
+  x <- item
+  if p x then pure x else empty
+
+digit :: Parser Char
+digit = sat isDigit
+
+lower :: Parser Char
+lower = sat isLower
+
+upper :: Parser Char
+upper = sat isUpper
+
+alphanum :: Parser Char
+alphanum = sat isAlphaNum
+
+char :: Char -> Parser Char
+char c = sat (_ == c)
 
 main :: Effect Unit
 main = do

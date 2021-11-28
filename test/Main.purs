@@ -5,7 +5,7 @@ import Prelude
 import Control.Plus (empty, (<|>))
 import Data.List (List(..), (:))
 import Effect (Effect)
-import Main (Parser, item, parse)
+import Main (Parser, item, parse, sat)
 import Test.Assert (assertEqual)
 import Test.Util (testUtil)
 import Util (next, toUpper)
@@ -22,6 +22,7 @@ testMain = do
   testApplicative
   testMonad
   testAlternative
+  testSat
 
 testItem :: Effect Unit
 testItem = do
@@ -65,3 +66,8 @@ testAlternative = do
   where
     e :: Parser Unit
     e = empty
+
+testSat :: Effect Unit
+testSat = do
+  assertEqual { actual : parse (sat (_ == 'a')) "abc", expected: { ret: 'a', str: "bc" } : Nil }
+  assertEqual { actual : parse (sat (_ == 'b')) "abc", expected: Nil }
