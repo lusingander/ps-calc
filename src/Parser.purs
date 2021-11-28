@@ -5,6 +5,9 @@ module Parser
   , alphanum
   , char
   , digit
+  , eval
+  , expr
+  , factor
   , fromChars
   , ident
   , identifier
@@ -19,6 +22,7 @@ module Parser
   , space
   , string
   , symbol
+  , term
   , toChars
   , token
   , upper
@@ -28,7 +32,8 @@ module Parser
 import Prelude
 
 import Control.Alternative (class Alt, class Alternative, class Plus, empty, (<|>))
-import Control.Lazy (class Lazy)
+import Control.Lazy (class Lazy, defer)
+import Data.Either (Either(..))
 import Data.Int (fromString) as Int
 import Data.List (List(..), fromFoldable, many, singleton, some, toUnfoldable, (:))
 import Data.Maybe (Maybe(..))
@@ -161,3 +166,28 @@ integer = token int
 
 symbol :: String -> Parser String
 symbol = token <<< string
+
+expr :: Parser Int
+expr = do
+  t <- defer (\_ -> term)
+  do _ <- symbol "+"
+     e <- defer (\_ -> expr)
+     pure $ t + e
+     <|> pure t
+
+term :: Parser Int
+term = do
+  f <- defer (\_ -> factor)
+  do _ <- symbol "*"
+     t <- defer (\_ -> term)
+     pure $ f * t
+     <|> pure f
+
+factor :: Parser Int
+factor = symbol "(" *> defer (\_ -> expr) <* symbol ")" <|> natural
+
+eval :: String -> Either String Int
+eval s = case parse expr s of
+  { ret: n, str: "" } : _ -> Right n
+  { ret: _, str: unused } : _ -> Left $ "unused input: " <> unused
+  Nil -> Left "invalid input"

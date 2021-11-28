@@ -16,6 +16,7 @@ to generate this file without the comments in this block.
   , "console"
   , "control"
   , "effect"
+  , "either"
   , "integers"
   , "lists"
   , "maybe"

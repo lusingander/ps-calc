@@ -6,10 +6,11 @@ module Test.Parser
 import Prelude
 
 import Control.Plus (empty, (<|>))
+import Data.Either (Either(..), isLeft)
 import Data.List (List(..), many, some, (:))
 import Effect (Effect)
-import Parser (Parser, digit, ident, int, item, nat, natural, parse, sat, space, string, symbol, token)
-import Test.Assert (assertEqual)
+import Parser (Parser, digit, eval, ident, int, item, nat, natural, parse, sat, space, string, symbol, token)
+import Test.Assert (assert, assertEqual)
 import Util (next, toUpper)
 
 testParser :: Effect Unit
@@ -28,6 +29,7 @@ testParser = do
   testInt
   testToken
   testNats
+  testEval
 
 testItem :: Effect Unit
 testItem = do
@@ -139,3 +141,15 @@ testNats = do
         natural
       _ <- symbol "]"
       pure $ n:ns
+
+testEval :: Effect Unit
+testEval = do
+  assertEqual { actual : eval "1", expected: Right 1 }
+  assertEqual { actual : eval "2 + 3", expected: Right 5 }
+  assertEqual { actual : eval "2 * 3", expected: Right 6 }
+  assertEqual { actual : eval "2 + 3 * 4", expected: Right 14 }
+  assertEqual { actual : eval "(2 + 3) * 4", expected: Right 20 }
+  assertEqual { actual : eval "(1 * (2 + (3 * (4 + 5))))", expected: Right 29 }
+  assert $ isLeft $ eval ""
+  assert $ isLeft $ eval "1 + 2 + "
+  assert $ isLeft $ eval "*"
