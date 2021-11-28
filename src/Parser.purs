@@ -7,15 +7,20 @@ module Parser
   , digit
   , fromChars
   , ident
+  , identifier
   , int
+  , integer
   , item
   , lower
   , nat
+  , natural
   , parse
   , sat
   , space
   , string
+  , symbol
   , toChars
+  , token
   , upper
   )
   where
@@ -141,3 +146,18 @@ int :: Parser Int
 int = neg <|> nat
   where
     neg = map negate $ char '-' *> nat
+
+token :: forall a. Parser a -> Parser a
+token p = space *> p <* space
+
+identifier :: Parser String
+identifier = token ident
+
+natural :: Parser Int
+natural = token nat
+
+integer :: Parser Int
+integer = token int
+
+symbol :: String -> Parser String
+symbol = token <<< string

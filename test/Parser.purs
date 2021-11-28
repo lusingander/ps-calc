@@ -8,7 +8,7 @@ import Prelude
 import Control.Plus (empty, (<|>))
 import Data.List (List(..), many, some, (:))
 import Effect (Effect)
-import Parser (Parser, digit, ident, int, item, nat, parse, sat, space, string)
+import Parser (Parser, digit, ident, int, item, nat, natural, parse, sat, space, string, symbol, token)
 import Test.Assert (assertEqual)
 import Util (next, toUpper)
 
@@ -26,6 +26,8 @@ testParser = do
   testNat
   testSpace
   testInt
+  testToken
+  testNats
 
 testItem :: Effect Unit
 testItem = do
@@ -117,3 +119,23 @@ testInt = do
   assertEqual { actual : parse int "10.0", expected: { ret: 10, str: ".0" } : Nil }
   assertEqual { actual : parse int "-123 abc", expected: { ret: -123, str: " abc" } : Nil }
   assertEqual { actual : parse int "abc", expected: Nil }
+
+testToken :: Effect Unit
+testToken = do
+  assertEqual { actual : parse (token int) "  123 ", expected: { ret: 123, str: "" } : Nil }
+  assertEqual { actual : parse (token int) "  123 4", expected: { ret: 123, str: "4" } : Nil }
+
+testNats :: Effect Unit
+testNats = do
+  assertEqual { actual : parse nats "[ 1, 2, 3 ]", expected: { ret: 1:2:3:Nil, str: "" } : Nil }
+  assertEqual { actual : parse nats "[ 1, 2, ]", expected: Nil }
+  where
+    nats :: Parser (List Int)
+    nats = do
+      _ <- symbol "["
+      n <- natural
+      ns <- many do
+        _ <- symbol ","
+        natural
+      _ <- symbol "]"
+      pure $ n:ns
