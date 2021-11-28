@@ -12,6 +12,7 @@ module Main
 
 import Prelude
 
+import Control.Alternative (class Alt, class Alternative, class Plus)
 import Data.List (List(..), fromFoldable, singleton, toUnfoldable, (:))
 import Data.String.CodeUnits (fromCharArray, toCharArray)
 import Effect (Effect)
@@ -46,6 +47,18 @@ instance bindParser :: Bind Parser where
     { ret: r, str: s } : _ -> parse (f r) s)
 
 instance monadParser :: Monad Parser
+
+instance altParser :: Alt Parser where
+  alt :: forall a. Parser a -> Parser a -> Parser a
+  alt pa pb = P (\inp -> case parse pa inp of
+    Nil -> parse pb inp
+    result : _ -> singleton result)
+
+instance plusParser :: Plus Parser where
+  empty :: forall a. Parser a
+  empty = P (\_ -> Nil)
+
+instance alternativeParser :: Alternative Parser
 
 parse :: forall a. Parser a -> String -> Results a
 parse (P p) inp = p inp

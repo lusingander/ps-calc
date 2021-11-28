@@ -2,6 +2,7 @@ module Test.Main where
 
 import Prelude
 
+import Control.Plus (empty, (<|>))
 import Data.List (List(..), (:))
 import Effect (Effect)
 import Main (Parser, item, parse)
@@ -20,6 +21,7 @@ testMain = do
   testFunctor
   testApplicative
   testMonad
+  testAlternative
 
 testItem :: Effect Unit
 testItem = do
@@ -53,3 +55,13 @@ testMonad = do
       v <- item
       _ <- item
       pure v
+
+testAlternative :: Effect Unit
+testAlternative = do
+  assertEqual { actual : parse e "abc", expected: Nil }
+  assertEqual { actual : parse (item <|> pure 'd' ) "abc", expected: { ret: 'a', str: "bc" } : Nil }
+  assertEqual { actual : parse (pure 'd' <|> empty ) "abc", expected: { ret: 'd', str: "abc" } : Nil }
+  assertEqual { actual : parse (empty <|> pure 'd' ) "abc", expected: { ret: 'd', str: "abc" } : Nil }
+  where
+    e :: Parser Unit
+    e = empty
