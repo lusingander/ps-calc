@@ -16,6 +16,8 @@ to generate this file without the comments in this block.
   , "console"
   , "effect"
   , "lists"
+  , "maybe"
+  , "partial"
   , "prelude"
   , "psci-support"
   , "strings"
