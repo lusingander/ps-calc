@@ -1,5 +1,6 @@
 module Util
-  ( toLower
+  ( next
+  , toLower
   , toUpper
   )
   where
@@ -12,14 +13,24 @@ import Partial.Unsafe (unsafePartial)
 
 -- unsafe
 toUpper :: Char -> Char
-toUpper = unsafePartial $ fromJust <<< fromCharCode <<< toUpperInt <<< toCharCode
+toUpper = mapChar toUpperInt
 
 -- unsafe
 toLower :: Char -> Char
-toLower = unsafePartial $ fromJust <<< fromCharCode <<< toLowerInt <<< toCharCode
+toLower = mapChar toLowerInt
+
+-- unsafe
+next :: Char -> Char
+next = mapChar nextInt
+
+mapChar :: (Int -> Int) -> Char -> Char
+mapChar f = unsafePartial $ fromJust <<< fromCharCode <<< f <<< toCharCode
 
 toUpperInt :: Int -> Int
 toUpperInt n = n - 0x20
 
 toLowerInt :: Int -> Int
 toLowerInt n = n + 0x20
+
+nextInt :: Int -> Int
+nextInt n = n + 1
