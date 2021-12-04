@@ -12,12 +12,15 @@ to generate this file without the comments in this block.
 -}
 { name = "my-project"
 , dependencies =
-  [ "assert"
-  , "console"
+  [ "aff"
+  , "arrays"
+  , "assert"
   , "control"
   , "effect"
   , "either"
+  , "foldable-traversable"
   , "integers"
+  , "keypress"
   , "lists"
   , "maybe"
   , "partial"

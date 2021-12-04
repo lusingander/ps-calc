@@ -5,6 +5,7 @@ module Util
   , isSpace
   , isUpper
   , next
+  , putStr
   , toLower
   , toUpper
   )
@@ -16,6 +17,7 @@ import Data.Char (fromCharCode, toCharCode)
 import Data.CodePoint.Unicode (isAlphaNum, isDecDigit, isLower, isSpace, isUpper) as U
 import Data.Maybe (fromJust)
 import Data.String (codePointFromChar)
+import Effect (Effect)
 import Partial.Unsafe (unsafePartial)
 
 -- unsafe
@@ -56,3 +58,8 @@ isAlphaNum = U.isAlphaNum <<< codePointFromChar
 
 isSpace :: Char -> Boolean
 isSpace = U.isSpace <<< codePointFromChar
+
+foreign import putStrImpl :: String -> Effect Unit
+
+putStr :: String -> Effect Unit
+putStr = putStrImpl
