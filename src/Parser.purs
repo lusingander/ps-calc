@@ -26,11 +26,9 @@ module Parser
   , toChars
   , token
   , upper
-  )
-  where
+  ) where
 
 import Prelude
-
 import Control.Alternative (class Alt, class Alternative, class Plus, empty, (<|>))
 import Control.Lazy (class Lazy, defer)
 import Data.Either (Either(..))
@@ -40,23 +38,32 @@ import Data.Maybe (Maybe(..))
 import Data.String.CodeUnits (fromCharArray, toCharArray)
 import Util (isAlphaNum, isDigit, isLower, isSpace, isUpper)
 
-type Result a = { ret :: a, str :: String }
+type Result a
+  = { ret :: a, str :: String }
 
-type Results a = List (Result a)
+type Results a
+  = List (Result a)
 
-newtype Parser a = P (String -> Results a)
+newtype Parser a
+  = P (String -> Results a)
 
 instance functorParser :: Functor Parser where
   map :: forall a b. (a -> b) -> Parser a -> Parser b
-  map g p = P (\inp -> case parse p inp of
-    Nil -> Nil
-    { ret: r, str: s } : _ -> singleton { ret: g r, str: s })
+  map g p =
+    P
+      ( \inp -> case parse p inp of
+          Nil -> Nil
+          { ret: r, str: s } : _ -> singleton { ret: g r, str: s }
+      )
 
 instance applyParser :: Apply Parser where
   apply :: forall a b. Parser (a -> b) -> Parser a -> Parser b
-  apply pg pa = P (\inp -> case parse pg inp of
-    Nil -> Nil
-    { ret: g, str: s } : _ -> parse (map g pa) s)
+  apply pg pa =
+    P
+      ( \inp -> case parse pg inp of
+          Nil -> Nil
+          { ret: g, str: s } : _ -> parse (map g pa) s
+      )
 
 instance applicativeParser :: Applicative Parser where
   pure :: forall a. a -> Parser a
@@ -64,17 +71,23 @@ instance applicativeParser :: Applicative Parser where
 
 instance bindParser :: Bind Parser where
   bind :: forall a b. Parser a -> (a -> Parser b) -> Parser b
-  bind p f = P (\inp -> case parse p inp of
-    Nil -> Nil
-    { ret: r, str: s } : _ -> parse (f r) s)
+  bind p f =
+    P
+      ( \inp -> case parse p inp of
+          Nil -> Nil
+          { ret: r, str: s } : _ -> parse (f r) s
+      )
 
 instance monadParser :: Monad Parser
 
 instance altParser :: Alt Parser where
   alt :: forall a. Parser a -> Parser a -> Parser a
-  alt pa pb = P (\inp -> case parse pa inp of
-    Nil -> parse pb inp
-    result : _ -> singleton result)
+  alt pa pb =
+    P
+      ( \inp -> case parse pa inp of
+          Nil -> parse pb inp
+          result : _ -> singleton result
+      )
 
 instance plusParser :: Plus Parser where
   empty :: forall a. Parser a
@@ -96,9 +109,12 @@ fromChars :: List Char -> String
 fromChars = toUnfoldable >>> fromCharArray
 
 item :: Parser Char
-item = P (\inp -> case toChars inp of
-  Nil -> Nil
-  x : xs -> singleton { ret: x , str: fromChars xs })
+item =
+  P
+    ( \inp -> case toChars inp of
+        Nil -> Nil
+        x : xs -> singleton { ret: x, str: fromChars xs }
+    )
 
 sat :: (Char -> Boolean) -> Parser Char
 sat p = do
@@ -123,7 +139,7 @@ char c = sat (_ == c)
 string :: String -> Parser String
 string s = case toChars s of
   Nil -> pure ""
-  c:cs -> do
+  c : cs -> do
     _ <- char c
     _ <- string $ fromChars cs
     pure s
@@ -132,12 +148,13 @@ ident :: Parser String
 ident = do
   x <- lower
   xs <- many alphanum
-  pure $ fromChars $ x:xs
+  pure $ fromChars $ x : xs
 
 nat :: Parser Int
 nat = do
   xs <- some digit
-  let maybeN = Int.fromString $ fromChars xs
+  let
+    maybeN = Int.fromString $ fromChars xs
   case maybeN of
     Just n -> pure n
     Nothing -> empty
@@ -150,7 +167,7 @@ space = do
 int :: Parser Int
 int = neg <|> nat
   where
-    neg = map negate $ char '-' *> nat
+  neg = map negate $ char '-' *> nat
 
 token :: forall a. Parser a -> Parser a
 token p = space *> p <* space
@@ -170,18 +187,20 @@ symbol = token <<< string
 expr :: Parser Int
 expr = do
   t <- defer (\_ -> term)
-  do _ <- symbol "+"
-     e <- defer (\_ -> expr)
-     pure $ t + e
-     <|> pure t
+  do
+    _ <- symbol "+"
+    e <- defer (\_ -> expr)
+    pure $ t + e
+    <|> pure t
 
 term :: Parser Int
 term = do
   f <- defer (\_ -> factor)
-  do _ <- symbol "*"
-     t <- defer (\_ -> term)
-     pure $ f * t
-     <|> pure f
+  do
+    _ <- symbol "*"
+    t <- defer (\_ -> term)
+    pure $ f * t
+    <|> pure f
 
 factor :: Parser Int
 factor = symbol "(" *> defer (\_ -> expr) <* symbol ")" <|> natural

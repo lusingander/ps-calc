@@ -8,11 +8,9 @@ module Util
   , putStr
   , toLower
   , toUpper
-  )
-  where
+  ) where
 
 import Prelude
-
 import Data.Char (fromCharCode, toCharCode)
 import Data.CodePoint.Unicode (isAlphaNum, isDecDigit, isLower, isSpace, isUpper) as U
 import Data.Maybe (fromJust)

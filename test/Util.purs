@@ -1,10 +1,8 @@
 module Test.Util
   ( testUtil
-  )
-  where
+  ) where
 
 import Prelude
-
 import Effect (Effect)
 import Test.Assert (assertEqual, assertFalse, assertTrue)
 import Util (isAlphaNum, isDigit, isLower, isSpace, isUpper, next, toLower, toUpper)
@@ -22,18 +20,18 @@ testUtil = do
 
 testToUpper :: Effect Unit
 testToUpper = do
-  assertEqual { actual : toUpper 'a', expected: 'A' }
-  assertEqual { actual : toUpper 'z', expected: 'Z' }
+  assertEqual { actual: toUpper 'a', expected: 'A' }
+  assertEqual { actual: toUpper 'z', expected: 'Z' }
 
 testToLower :: Effect Unit
 testToLower = do
-  assertEqual { actual : toLower 'A', expected: 'a' }
-  assertEqual { actual : toLower 'Z', expected: 'z' }
+  assertEqual { actual: toLower 'A', expected: 'a' }
+  assertEqual { actual: toLower 'Z', expected: 'z' }
 
 testNext :: Effect Unit
 testNext = do
-  assertEqual { actual : next 'a', expected: 'b' }
-  assertEqual { actual : next 'A', expected: 'B' }
+  assertEqual { actual: next 'a', expected: 'b' }
+  assertEqual { actual: next 'A', expected: 'B' }
 
 testIsDigit :: Effect Unit
 testIsDigit = do
