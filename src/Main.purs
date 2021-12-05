@@ -1,7 +1,7 @@
 module Main where
 
 import Prelude
-import Data.Array (elem, foldl, init, replicate, reverse, snoc, take)
+import Data.Array (elem, foldMap, init, replicate, reverse, snoc, take)
 import Data.Foldable (sequence_)
 import Data.List (List(..), (:))
 import Data.Maybe (fromMaybe)
@@ -79,7 +79,7 @@ zipWithIndex as = zipWithIndex' 1 as
 
 display :: String -> Aff Unit
 display s = do
-  writeat { x: 3, y: 2 } $ foldl append mempty $ replicate 13 " "
+  writeat { x: 3, y: 2 } $ foldMap identity $ replicate 13 " "
   writeat { x: 3, y: 2 } $ fromCharArray $ reverse $ take 13 $ reverse $ toCharArray s
 
 calc :: String -> Aff Unit
@@ -116,7 +116,7 @@ initString s = fromCharArray $ fromMaybe [] $ init $ toCharArray s
 
 eval :: String -> Aff Unit
 eval s = case parse expr s of
-  { ret: n, str: "" } : _ -> calc $ show n
+  results : _ -> calc $ show results.ret
   _ -> do
     _ <- beep
     calc s
